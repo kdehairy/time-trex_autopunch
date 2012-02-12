@@ -53,8 +53,8 @@ def punchIn(cookie):
 	url = 'http://74.208.197.154:8085/interface/punch/Punch.php'
 
 	user_id = getUserId(cookie)
-	#dt_now = datetime.now()
-	dt_now = datetime(2012, 2, 7, 8, 2, 9, 465714)
+	dt_now = datetime.now()
+	#dt_now = datetime(2012, 2, 7, 8, 2, 9, 465714)
 	timestamp = int((time.mktime(dt_now.timetuple()) + dt_now.microsecond/1000000.0)*1000)
 	values = {
 		'data[time_stamp]'     : timestamp,
