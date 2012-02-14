@@ -203,7 +203,11 @@ while True:
 	choice = input("Enter a choice (1 to 4, default 1) : ")
 	if choice == "":
 		choice = "0"
-	if int(choice) not in range(0,5):
+	try:
+		if int(choice) not in range(0,5):
+			print("invalid choice. please choose a number between 1 and 4")
+			continue
+	except ValueError:
 		print("invalid choice. please choose a number between 1 and 4")
 		continue
 	
