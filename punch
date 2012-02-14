@@ -185,19 +185,19 @@ def parseCommands(commands):
 	rootCommand = commands[0]
 	commands = commands[1:]
 	if rootCommand not in commandList:
-		print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+		print("Usage: punch [punchin | punchout] [--username <username>] [--password <password>]")
 		return False
 	param = None
 	for entry in commands:
 		if param == "--username":
 			if entry == "--password":
-				print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+				print("Usage: punch [punchin | punchout] [--username <username>] [--password <password>]")
 				return False
 			username = entry
 			param = None
 		elif param == "--password":
 			if entry == "--username":
-				print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+				print("Usage: punch [punchin | punchout] [--username <username>] [--password <password>]")
 				return False
 			password = entry
 			param = None
@@ -206,7 +206,7 @@ def parseCommands(commands):
 		
 	#if a parameter is entered without a value
 	if param is not None:
-		print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+		print("Usage: punch [punchin | punchout] [--username <username>] [--password <password>]")
 		return False
 	# if the username and password is not set in the command line, read the config file
 	if username == None and password == None:
@@ -230,9 +230,10 @@ def parseCommands(commands):
 # Bigining of the execution
 ####################################################################################################
 print(" -----------------")
-print("| version: 0.9    |")
+print("| version: RC1.0    |")
 print("| author: kdehairy|")
 print(" -----------------")
+print("Usage: punch [punchin | punchout] [--username <username>] [--password <password>]")
 
 #set default values for the global variables
 currentUsername, currentPassword = (None, None)
