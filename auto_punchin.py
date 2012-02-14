@@ -5,6 +5,7 @@ import time
 import urllib.parse
 import urllib.request
 import re
+import os
 
 PUNCHIN = "10"
 PUNCHOUT = "20"
@@ -48,8 +49,12 @@ def getUserId(cookie):
 		return ""
 	return user_id
 
-def punchIn(cookie):
-	print("Performing 'Punch in' ...")
+def requestPunch(type, cookie):
+	if type == PUNCHIN:
+		print("Performing 'Punch in' ...")
+	elif type == PUNCHOUT:
+		print("Performing 'Punch out' ...")
+	
 	url = 'http://74.208.197.154:8085/interface/punch/Punch.php'
 
 	user_id = getUserId(cookie)
@@ -59,7 +64,7 @@ def punchIn(cookie):
 	values = {
 		'data[time_stamp]'     : timestamp,
 		'data[type_id]' : '10',
-		'data[status_id]' : PUNCHIN,
+		'data[status_id]' : type,
 		'data[branch_id]' : '1',
 		'data[department_id]' : '4',
 		'data[user_id]' : user_id,
@@ -138,28 +143,83 @@ def login(username, password):
 			raise
 	return response
 
+def getCurrentCredintials():
+	userHomeDir = os.path.expanduser("~")
+	config = open("{}/.punchConfig".format(userHomeDir), 'r')
+	configuration = config.readlines()
+	config.close()
+	username = configuration[0][:-1]	#remove the endline character from the first line
+	password = configuration[1]
+	return username, password
+
+def writeCredintials(username, password):
+	userHomeDir = os.path.expanduser("~")
+	config = open("{}/.punchConfig".format(userHomeDir), 'w')
+	config.write("{}\n{}".format(username, password))
+	config.close()
+	return
+
+def punch(type, username, password):
+	try:
+		response = login(username, password)
+		if response is None:
+			print("\n**Failure**")
+			return
+		cookie = extractCookie(response)
+		requestPunch(type, cookie)
+		print("\n**Success!**")
+	except urllib.error.HTTPError as e:
+		print("\n**Failure**")
+		return
+	except KeyboardInterrupt:
+		print("")
+		print("Aborted by user.")
+	return
+
+####################################################################################################
+# Bigining of the execution
 ####################################################################################################
 print(" -----------------")
-print("| version: 0.8    |")
+print("| version: 0.9    |")
 print("| author: kdehairy|")
 print(" -----------------")
-cookie = ""
-response = None
-try:
-	username = input("username: ")
-	password = input("password: ")
-	response = login(username, password)
-	if response is None:
-		print("Failure")
-		exit()
-	cookie = extractCookie(response)
-	punchIn(cookie)
-	print("Success!")
-except urllib.error.HTTPError as e:
-	print("Failure")
-	exit()
-except KeyboardInterrupt:
-	print("")
-	print("Aborted by user.")
-	exit()
+
+#set default values for the global variables
+currentUsername, currentPassword = (None, None)
+
+#get the current username and password if any
+currentUsername, currentPassword = getCurrentCredintials()
+if currentUsername is None:
+	currentUsername = "not set"
+
+while True:
+	print("\n\n1. punchIn.")
+	print("2. PunchOut")
+	print("3. Set username and password (current username: '{}').".format(currentUsername))
+	print("4. Exit")
+	choice = input("Enter a choice (1 to 4, default 1) : ")
+	if choice == "":
+		choice = "0"
+	if int(choice) not in range(0,5):
+		print("invalid choice. please choose a number between 1 and 4")
+		continue
+	
+	if choice == "1" or choice == "0":
+		if currentPassword is None:
+			currentUsername = input("username: ")
+			currentPassword = input("password: ")
+		punch(PUNCHIN, currentUsername, currentPassword)
+	elif choice == "2":
+		if currentPassword is None:
+			currentUsername = input("username: ")
+			currentPassword = input("password: ")
+		punch(PUNCHOUT, currentUsername, currentPassword)
+	elif choice == "3":
+		currentUsername = input("username: ")
+		currentPassword = input("password: ")
+		writeCredintials(currentUsername, currentPassword)
+	elif choice == "4":
+		exit(0)
+
+	
 		
