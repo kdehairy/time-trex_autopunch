@@ -6,6 +6,7 @@ import urllib.parse
 import urllib.request
 import re
 import os
+import sys
 
 PUNCHIN = "10"
 PUNCHOUT = "20"
@@ -135,7 +136,6 @@ def login(username, password):
 			print("Login failed.")
 			return None
 	except urllib.error.HTTPError as e:
-		print(e.code)
 		if e.code == 302:
 			response = e
 		else:
@@ -147,7 +147,7 @@ def getCurrentCredintials():
 	try:
 		userHomeDir = os.path.expanduser("~")
 		config = open("{}/.punchConfig".format(userHomeDir), 'r')
-	except IOError:
+	except IOError as e:
 		return None, None
 	configuration = config.readlines()
 	config.close()
@@ -179,6 +179,53 @@ def punch(type, username, password):
 		print("Aborted by user.")
 	return
 
+def parseCommands(commands):
+	commandList = ['punchin', 'punchout']
+	rootCommand, username, password = None, None, None
+	rootCommand = commands[0]
+	commands = commands[1:]
+	if rootCommand not in commandList:
+		print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+		return False
+	param = None
+	for entry in commands:
+		if param == "--username":
+			if entry == "--password":
+				print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+				return False
+			username = entry
+			param = None
+		elif param == "--password":
+			if entry == "--username":
+				print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+				return False
+			password = entry
+			param = None
+		elif param == None:
+			param = entry
+		
+	#if a parameter is entered without a value
+	if param is not None:
+		print("Usage: punch [punchin | punchout] [--username <username> --password <password]")
+		return False
+	# if the username and password is not set in the command line, read the config file
+	if username == None and password == None:
+		username, password = getCurrentCredintials()
+	
+	if rootCommand == commandList[0]:
+		if username is None:
+			username = input("username: ")
+		if password is None:
+			password = input("password: ")
+		punch(PUNCHIN, username, password)
+	elif rootCommand == commandList[1]:
+		if username is None:
+			username = input("username: ")
+		if password is None:
+			password = input("password: ")
+		punch(PUNCHOUT, username, password)
+	return True
+
 ####################################################################################################
 # Bigining of the execution
 ####################################################################################################
@@ -189,6 +236,12 @@ print(" -----------------")
 
 #set default values for the global variables
 currentUsername, currentPassword = (None, None)
+choice = None
+
+#parse the command line options
+if len(sys.argv) > 1:
+	result = parseCommands(sys.argv[1:])
+	exit(0)
 
 #get the current username and password if any
 currentUsername, currentPassword = getCurrentCredintials()
