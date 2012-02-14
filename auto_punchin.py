@@ -144,8 +144,11 @@ def login(username, password):
 	return response
 
 def getCurrentCredintials():
-	userHomeDir = os.path.expanduser("~")
-	config = open("{}/.punchConfig".format(userHomeDir), 'r')
+	try:
+		userHomeDir = os.path.expanduser("~")
+		config = open("{}/.punchConfig".format(userHomeDir), 'r')
+	except IOError:
+		return None, None
 	configuration = config.readlines()
 	config.close()
 	username = configuration[0][:-1]	#remove the endline character from the first line
