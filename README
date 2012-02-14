@@ -3,6 +3,4 @@ Requirements:
 python 3.x
 
 for windows users:
-1. put the 'punch' and 'punch.bat' files in the same directory
-2. run the punch.bat
-3. i'm not sure if it will work. i'm not a windows user. if you know about .bat files please help. thanks
+please rename the 'punch' file to 'punch.py'
